@@ -1,4 +1,4 @@
-// Learning Objectives 361 - 374 & 399 & 434 & 438
+// Learning Objectives 361 - 374 & 399 & 434 & 438-440
 
 /* Classes have additional capabilities that structures don’t have:
 Inheritance.
@@ -46,6 +46,9 @@ tenEighty.frameRate = 25.0
 
 let alsoTenEighty = tenEighty
 alsoTenEighty.frameRate = 30.0
+if tenEighty === alsoTenEighty {
+    print("tenEighty and alsoTenEighty refer to the same VideoMode instance.")
+}
 
 print("The frameRate property updated: \(tenEighty.frameRate)")
 
@@ -166,3 +169,112 @@ SomeStructure.storedTypeProperty = "Another value."
 print(SomeStructure.storedTypeProperty)
 print(SomeEnumeration.computedTypeProperty)
 print(SomeClass.computedTypeProperty)
+
+
+// Methods
+
+class Counter {
+    var count = 0
+    
+    func increment() {
+        count += 1
+    }
+    
+    func increment(by amount: Int) {
+        count += amount
+    }
+    
+    func reset() {
+        count = 0
+    }
+}
+let counter = Counter()
+print(counter.count)
+counter.increment()
+counter.increment(by: 3)
+print(counter.count)
+counter.reset()
+
+// Self Property
+struct Point {
+    var x = 0.0
+    var y = 0.0
+    func isRightOf(x: Double) -> Bool {
+        return self.x > x //self.x refers to the var x of the class, and x refers to the parameter
+    }
+}
+let point = Point(x: 4.0, y: 5.0)
+if point.isRightOf(x: 1.0) {
+    print("This point is to the right")
+}
+
+// Mutating Func
+/* Structures and enumerations are value types. By default, the properties of a value type cannot be modified from within its instance methods. */
+
+struct NewPoint {
+    var x = 0.0
+    var y = 0.0
+    
+    mutating func moveBy(x deltaX: Double, y deltaY: Double) {
+        x += deltaX
+        y += deltaY
+    }
+}
+var newPoint = NewPoint(x: 1.0, y: 1.0)
+newPoint.moveBy(x: 2.5, y: 4.0)
+print("New Values: (\(newPoint.x), \(newPoint.y))")
+
+// Type Methods
+/* By using class or static in a func or variable, you make it global to all instances, so if you change it in one instance it'll change to every other.*/
+class AnotherClass {
+    class func someTypeMethod() {
+        // type method implementation goes here
+    }
+}
+AnotherClass.someTypeMethod()
+
+struct LevelTracker {
+    static var highestUnlockedLevel = 1
+    var currentLevel = 1
+
+    static func unlock(_ level: Int) {
+        if level > highestUnlockedLevel { highestUnlockedLevel = level }
+    }
+
+    static func isUnlocked(_ level: Int) -> Bool {
+        return level <= highestUnlockedLevel
+    }
+
+    @discardableResult
+    mutating func advance(to level: Int) -> Bool {
+        if LevelTracker.isUnlocked(level) {
+            currentLevel = level
+            return true
+        } else {
+            return false
+        }
+    }
+}
+
+class Player {
+    var tracker = LevelTracker()
+    let playerName: String
+    func complete(level: Int) {
+        LevelTracker.unlock(level + 1)
+        tracker.advance(to: level + 1)
+    }
+    init(name: String) {
+        playerName = name
+    }
+}
+
+var player = Player(name: "Argyrios")
+player.complete(level: 1)
+print("highest unlocked level is now \(LevelTracker.highestUnlockedLevel)")
+
+player = Player(name: "Beto")
+if player.tracker.advance(to: 6) {
+    print("player is now on level 6")
+} else {
+    print("level 6 has not yet been unlocked")
+}
